@@ -28,45 +28,20 @@ with open('./data/label_dict/class.json', 'r') as f:
 f.close()
 
 def text_cleaner(sents):
-    sents = sents.lower()
-    text_data = re.sub("[^가-힣A-z0-9\&]", " ", sents)
-    text_data = re.sub('모바일서비스', '모바일 서비스 ', text_data)
-    text_data = re.sub('\b클라우드펀드\b', '크라우드펀딩 ', text_data)
-    text_data = re.sub('웹툰', ' 웹툰 ', text_data)
-    text_data = re.sub('인터넷', '인터넷  ', text_data)
-    text_data = re.sub('금융', ' 금융 ', text_data)
-    text_data = re.sub('간편송금', '간편 송금 ', text_data)
-    text_data = re.sub('k뷰티', 'k 뷰티 ', text_data)
-    text_data = re.sub('컨텐츠', '콘텐츠 ', text_data)
-    text_data = re.sub('모바일', '모바일 ', text_data)
-    text_data = re.sub('blockchain', '블록체인 ', text_data)
-    text_data = re.sub('게임', ' 게임 ', text_data)
-    text_data = re.sub('검색', ' 검색 ', text_data)
-    text_data = re.sub("p2p", " p2p ", text_data)
-    text_data = re.sub("\bp2p\b", " p2p ", text_data)
-    text_data = re.sub('\bhealth\b', '헬스 ', text_data)
-    text_data = re.sub('\bhealthcare\b', '헬스케어 ', text_data)
-    text_data = re.sub('블록 체인', '블록체인 ', text_data)
-    text_data = re.sub('\b디지털헬스\b', '디지털 헬스케어 ', text_data)
-    text_data = re.sub('디지털헬스케어', '디지털 헬스케어 ', text_data)
-    text_data = re.sub('machinelearning', '머신러닝 ', text_data)
-    text_data = re.sub('finance', '금융 ', text_data)
-    text_data = re.sub('apps', '모바일앱', text_data)
-    text_data = re.sub('의료', '의료 ', text_data)
-    text_data = re.sub('tutor', '교사 ', text_data)
-    text_data = re.sub('이스포츠', 'e스포츠 ', text_data)
-    text_data = re.sub('e스포츠', 'e스포츠 ', text_data)
-    text_data = re.sub('콘텐츠', '콘텐츠 ', text_data)
-    text_data = re.sub('fintech', '핀테크 ', text_data)
-    text_data = re.sub('라디오', ' 라디오 ', text_data)
-    text_data = re.sub('온오프라', '온오프라인', text_data)
-    text_data = re.sub('정보보안', '정보보안 ', text_data)
-    text_data = re.sub('네트워크', '네트워크 ', text_data)
-    text_data = re.sub('인공지능알고리즘', '인공지능 알고리즘', text_data)
-    text_data = re.sub('o2o', 'o2o  ', text_data)
-    text_data = re.sub('교육', ' 교육  ', text_data)
-    text_data = re.sub('학습', ' 학습  ', text_data)
-    text_data = re.sub('로봇', ' 로봇  ', text_data)
+    text_data = sents.lower()
+    change_list = [('모바일서비스', '모바일 서비스 '), ('\b클라우드펀드\b', '크라우드펀딩 '), ('웹툰', ' 웹툰 '), ('인터넷', '인터넷  '),
+                   ('금융', ' 금융 '), ('간편송금', '간편 송금 '), ('k뷰티', 'k 뷰티 '), ('커머스', 'e커머스 '), ('컨텐츠', '콘텐츠 '),
+                   ('모바일', '모바일 '), ('blockchain', '블록체인 '), ('게임', ' 게임 '), ('검색', ' 검색 '), ("p2p", " p2p "),
+                   ('\bp2p\b', ' p2p '), ('\bhealth\b', '헬스 '),  ('\bhealthcare\b', ' 헬스케어 '), ('\b헬스케어\b', ' 헬스케어 '),
+                   ('\b자산', ' 자산'), ('블록 체인', '블록체인 '), ('\b디지털헬스\b', '디지털 헬스케어 '), ('디지털헬스케어', '디지털 헬스케어 '),
+                   ('machinelearning', '머신러닝 '), ('finance', '금융 '), ('finance', '금융 '), ('apps', '모바일앱'), ('어플리케이션', '모바일앱'),
+                   ('의료', '의료 '), ('tutor', '교사 '),('이스포츠', 'e스포츠 '), ('e스포츠', 'e스포츠 '), ('콘텐츠', '콘텐츠 '), ('fintech', '핀테크 '),
+                   ('라디오', ' 라디오 '), ('온오프라', '온오프라인'), ('정보보안', '정보보안 '), ('영상', '영상 '), ('네트워크', '네트워크 '), ('검사키트', ' 검사키트 '),
+                   ('바이오', ' 바이오 '), ('bio', ' bio '), ('인공지능알고리즘', '인공지능 알고리즘'), ('o2o', 'o2o  '), ('교육', ' 교육  '), ('학습', ' 학습  '),
+                   ('환자', ' 환자  '), ('로봇', ' 로봇  ')]
+
+    for tu in change_list:
+        text_data = re.sub(tu[0], tu[1], text_data)
     text_data = re.sub(r"\s{2,}", " ", text_data)
     return text_data
 
@@ -96,7 +71,8 @@ def noun_corpus(sents):
 
 sw_list = pd.read_csv('./Preprocess/korean_stopwords.txt')['stopwords'].tolist()
 com_list = pd.read_csv('./data/company_sw2.txt')['word'].tolist()
-sw_list = list(sw_list+com_list)
+ext_list = pd.read_csv('./data/sw_extra.txt', '\t')['word'].tolist()
+sw_list = list(sw_list+com_list+ext_list)
 
 d2v_small_model_name = './model/word_embedding/Doc2vec_new_small2_4.model'
 doc_vectorizer_small = Doc2Vec.load(d2v_small_model_name)
@@ -110,7 +86,6 @@ token_list = company_data['token']
 freq_list = list(itertools.chain.from_iterable(token_list))
 freq_token = FreqDist(freq_list)
 freq_df = pd.DataFrame(dict(freq_token).items(), columns=['word', 'freq'])
-freq_df.shape
 freq_df.to_excel('./data/zifs_compnay_extra.xlsx', index=False, encoding='cp949')
 
 
@@ -160,4 +135,56 @@ company_data['predicted_small_label2'] = company_data.predicted_small_label2.app
 company_data['predicted_small_label3'] = company_data.predicted_small_label3.apply(str).map(small_class)
 company_data.columns
 
-company_data.to_excel('./phase34/extra/extra_results.xlsx', index=False)
+company_data['token_len'] = company_data.token.apply(lambda  x : len(x))
+company_data.to_excel('./phase34/extra/extra_results_3.xlsx', index=False, encoding='cp949')
+
+
+
+'''
+text_data = re.sub("[^가-힣\&]", " ", sents)
+text_data = re.sub('모바일서비스', '모바일 서비스 ', text_data)
+text_data = re.sub('\b클라우드펀드\b', '크라우드펀딩 ', text_data)
+text_data = re.sub('웹툰', ' 웹툰 ', text_data)
+text_data = re.sub('인터넷', '인터넷  ', text_data)
+text_data = re.sub('금융', ' 금융 ', text_data)
+text_data = re.sub('간편송금', '간편 송금 ', text_data)
+text_data = re.sub('k뷰티', 'k 뷰티 ', text_data)
+text_data = re.sub('커머스', 'e커머스 ', text_data)
+text_data = re.sub('컨텐츠', '콘텐츠 ', text_data)
+text_data = re.sub('모바일', '모바일 ', text_data)
+text_data = re.sub('blockchain', '블록체인 ', text_data)
+text_data = re.sub('검색', ' 검색 ', text_data)
+text_data = re.sub("p2p", " p2p ", text_data)
+text_data = re.sub("\bp2p\b", " p2p ", text_data)
+text_data = re.sub('\bhealth\b', '헬스 ', text_data)
+text_data = re.sub('\bhealthcare\b', ' 헬스케어 ', text_data)
+text_data = re.sub('\b헬스케어\b', ' 헬스케어 ', text_data)
+text_data = re.sub('\b자산', ' 자산', text_data)
+text_data = re.sub('블록 체인', '블록체인 ', text_data)
+text_data = re.sub('\b디지털헬스\b', '디지털 헬스케어 ', text_data)
+text_data = re.sub('디지털헬스케어', '디지털 헬스케어 ', text_data)
+text_data = re.sub('machinelearning', '머신러닝 ', text_data)
+text_data = re.sub('finance', '금융 ', text_data)
+text_data = re.sub('apps', '모바일앱', text_data)
+text_data = re.sub('어플리케이션', '모바일앱', text_data)
+text_data = re.sub('의료', '의료 ', text_data)
+text_data = re.sub('tutor', '교사 ', text_data)
+text_data = re.sub('이스포츠', 'e스포츠 ', text_data)
+text_data = re.sub('e스포츠', 'e스포츠 ', text_data)
+text_data = re.sub('콘텐츠', '콘텐츠 ', text_data)
+text_data = re.sub('fintech', '핀테크 ', text_data)
+text_data = re.sub('라디오', ' 라디오 ', text_data)
+text_data = re.sub('온오프라', '온오프라인', text_data)
+text_data = re.sub('정보보안', '정보보안 ', text_data)
+text_data = re.sub('영상', '영상 ', text_data)
+text_data = re.sub('네트워크', '네트워크 ', text_data)
+text_data = re.sub('검사키트', ' 검사키트 ', text_data)
+text_data = re.sub('바이오', ' 바이오 ', text_data)
+text_data = re.sub('bio', ' bio ', text_data)
+text_data = re.sub('인공지능알고리즘', '인공지능 알고리즘', text_data)
+text_data = re.sub('o2o', 'o2o  ', text_data)
+text_data = re.sub('교육', ' 교육  ', text_data)
+text_data = re.sub('학습', ' 학습  ', text_data)
+text_data = re.sub('환자', ' 환자  ', text_data)
+text_data = re.sub('로봇', ' 로봇  ', text_data)
+'''
