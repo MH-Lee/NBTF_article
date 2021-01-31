@@ -28,18 +28,22 @@ with open('./data/label_dict/class.json', 'r') as f:
 f.close()
 
 def text_cleaner(sents):
-    text_data = sents.lower()
+    sents = sents.lower()
+    text_data = re.sub("[^가-힣A-z0-9\&]", " ", sents)
     change_list = [('모바일서비스', '모바일 서비스 '), ('\b클라우드펀드\b', '크라우드펀딩 '), ('웹툰', ' 웹툰 '), ('인터넷', '인터넷  '),
                    ('금융', ' 금융 '), ('간편송금', '간편 송금 '), ('k뷰티', 'k 뷰티 '), ('커머스', 'e커머스 '), ('컨텐츠', '콘텐츠 '),
                    ('모바일', '모바일 '), ('blockchain', '블록체인 '), ('게임', ' 게임 '), ('검색', ' 검색 '), ("p2p", " p2p "),
-                   ('\bp2p\b', ' p2p '), ('\bhealth\b', '헬스 '),  ('\bhealthcare\b', ' 헬스케어 '), ('\b헬스케어\b', ' 헬스케어 '),
+                   ('\bp2p\b', ' p2p '), ('\bhealth\b', '헬스 '), ('\be커머스\b', ' e커머스 '),  ('\bhealthcare\b', ' 헬스케어 '), ('\b헬스케어\b', ' 헬스케어 '),
                    ('\b자산', ' 자산'), ('블록 체인', '블록체인 '), ('\b디지털헬스\b', '디지털 헬스케어 '), ('디지털헬스케어', '디지털 헬스케어 '),
                    ('machinelearning', '머신러닝 '), ('finance', '금융 '), ('finance', '금융 '), ('apps', '모바일앱'), ('어플리케이션', '모바일앱'),
                    ('의료', '의료 '), ('tutor', '교사 '),('이스포츠', 'e스포츠 '), ('e스포츠', 'e스포츠 '), ('콘텐츠', '콘텐츠 '), ('fintech', '핀테크 '),
                    ('라디오', ' 라디오 '), ('온오프라', '온오프라인'), ('정보보안', '정보보안 '), ('영상', '영상 '), ('네트워크', '네트워크 '), ('검사키트', ' 검사키트 '),
                    ('바이오', ' 바이오 '), ('bio', ' bio '), ('인공지능알고리즘', '인공지능 알고리즘'), ('o2o', 'o2o  '), ('교육', ' 교육  '), ('학습', ' 학습  '),
-                   ('환자', ' 환자  '), ('로봇', ' 로봇  ')]
-
+                   ('환자', ' 환자  '), ('로봇', ' 로봇  '), ('edtech', ' 에듀테크 '), ('\b의사\b', ' 의사 '), ('\b번역\b', ' 번역 '), ('조직검사', '조직 검사'),
+                   ('\b랜섬웨어\b',' 랜섬웨어 '),('\b인공지능\b',' 인공지능 '), ('\b해킹\b',' 해킹 '), ('보험', '보험'), ('\b반려동물\b', ' 반려동물 ')]
+    text_data = re.sub(r'\d\d\d\d년', ' ', text_data)
+    text_data = re.sub(r'\d\d월', ' ', text_data)
+    text_data = re.sub(r'\d월', ' ', text_data)
     for tu in change_list:
         text_data = re.sub(tu[0], tu[1], text_data)
     text_data = re.sub(r"\s{2,}", " ", text_data)
@@ -52,7 +56,7 @@ def stopwords_remove(corpus_data, sw_list):
         for w in corpus_list:
             if w.isdecimal():
                 continue
-            if (w not in sw_list) & (len(w)>1):
+            if (w not in sw_list) & (len(w) >= 2):
                 if w == '모바일게':
                     w = '모바일게임'
                 words.append(w)
@@ -136,8 +140,16 @@ company_data['predicted_small_label3'] = company_data.predicted_small_label3.app
 company_data.columns
 
 company_data['token_len'] = company_data.token.apply(lambda  x : len(x))
-company_data.to_excel('./phase34/extra/extra_results_3.xlsx', index=False, encoding='cp949')
+company_data2 = company_data[company_data['token_len'] > 21]
 
+filtered_label = ['AI/빅데이터', '핀테크', '디지털콘텐츠디자인', '로봇', '스마트팩토리',\
+                  '서비스플랫폼', 'O2O/지식서비스', '바이오/헬스케어', '정보보안', '화장품']
+
+company_data2 = company_data2[company_data2.predicted_label1.isin(filtered_label)]
+company_data2 = company_data2[company_data2.predicted_label2.isin(filtered_label)]
+
+company_data.to_excel('./phase34/extra/extra_results_4.xlsx', index=False, encoding='cp949')
+company_data2.to_excel('./phase34/extra/extra_results_4(filtered).xlsx', index=False, encoding='cp949')
 
 
 '''
